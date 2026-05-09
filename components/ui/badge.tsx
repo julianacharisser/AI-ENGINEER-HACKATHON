@@ -20,11 +20,3 @@ export function Badge({ className, variant = 'default', ...props }: BadgeProps) 
     />
   )
 }
-import { type HTMLAttributes } from 'react';
-import { clsx } from 'clsx';
-
-export function Badge({ className, ...props }: HTMLAttributes<HTMLSpanElement>) {
-  return (
-    <span className={clsx('rounded-full bg-glow/15 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-glow', className)} {...props} />
-  );
-}

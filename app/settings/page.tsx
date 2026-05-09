@@ -1,11 +1,37 @@
-'use client'
-
 import Link from 'next/link'
 import { ShieldCheck, Settings, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { auth } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const clerkConfigured =
+    !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
+    !!process.env.CLERK_SECRET_KEY
+
+  if (!clerkConfigured) {
+    return (
+      <div className="page-shell">
+        <div className="mx-auto max-w-3xl">
+          <Card className="glass-panel p-8">
+            <p className="text-sm uppercase tracking-[0.24em] text-red-400">Setup Required</p>
+            <h1 className="mt-3 text-3xl font-semibold text-white">Clerk is not configured</h1>
+            <p className="mt-4 text-slate-300 leading-7">
+              Add <code>NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY</code> and <code>CLERK_SECRET_KEY</code> to <code>.env.local</code> to enable authentication.
+            </p>
+          </Card>
+        </div>
+      </div>
+    )
+  }
+
+  const { userId } = await auth()
+
+  if (!userId) {
+    redirect('/sign-in')
+  }
+
   return (
     <div className="page-shell">
       <div className="max-w-5xl mx-auto space-y-10">

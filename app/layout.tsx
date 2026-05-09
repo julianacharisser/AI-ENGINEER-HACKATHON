@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import SiteNav from '@/components/site-nav'
-import FloatingAGIcon from '@/components/floating-ag-icon'
+import { FloatingAGIcon } from '@/components/floating-ag-icon'
+import { Providers } from '@/components/providers'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -30,13 +31,15 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
       </head>
       <body className={inter.className}>
-        <div className="min-h-screen bg-black text-white flex flex-col">
-          <SiteNav />
-          <main className="flex-1 relative">
-            {children}
-          </main>
-          <FloatingAGIcon />
-        </div>
+        <Providers>
+          <div className="min-h-screen bg-black text-white flex flex-col">
+            <SiteNav />
+            <main className="flex-1 relative">
+              {children}
+            </main>
+            <FloatingAGIcon />
+          </div>
+        </Providers>
       </body>
     </html>
   )

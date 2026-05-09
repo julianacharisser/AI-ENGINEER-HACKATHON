@@ -1,10 +1,8 @@
-'use client'
-
-import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { ArrowRight, UploadCloud, BookOpen, ShieldCheck, Sparkles, Cpu } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { UploadCloud, BookOpen, ShieldCheck, Sparkles, Cpu } from 'lucide-react'
 import { Card } from '@/components/ui/card'
+import { auth } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
 
 const topics = [
   { title: 'Quantum Mechanics', frequency: 12, confidence: '89%', prediction: 'Explain wave-particle duality.', reason: 'Appeared in 4 past exams.' },
@@ -19,7 +17,33 @@ const stats = [
   { label: 'Study streak', value: '5 days', icon: ShieldCheck }
 ]
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const clerkConfigured =
+    !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
+    !!process.env.CLERK_SECRET_KEY
+
+  if (!clerkConfigured) {
+    return (
+      <div className="page-shell">
+        <div className="mx-auto max-w-3xl">
+          <Card className="glass-panel p-8">
+            <p className="text-sm uppercase tracking-[0.24em] text-red-400">Setup Required</p>
+            <h1 className="mt-3 text-3xl font-semibold text-white">Clerk is not configured</h1>
+            <p className="mt-4 text-slate-300 leading-7">
+              Add <code>NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY</code> and <code>CLERK_SECRET_KEY</code> to <code>.env.local</code> to enable protected routes.
+            </p>
+          </Card>
+        </div>
+      </div>
+    )
+  }
+
+  const { userId } = await auth()
+
+  if (!userId) {
+    redirect('/sign-in')
+  }
+
   return (
     <div className="page-shell">
       <div className="max-w-6xl mx-auto space-y-10">
@@ -33,7 +57,12 @@ export default function DashboardPage() {
                   Upload your notes, review predicted exam topics, and let AG push you through the next session. This a focused study hub with all core tools in one place.
                 </p>
               </div>
-              <Button className="h-12 px-5" onClick={() => window.location.assign('/')}>Home</Button>
+              <Link
+                href="/"
+                className="inline-flex h-12 items-center justify-center rounded-2xl bg-accent px-5 text-sm font-semibold text-white shadow-glow transition-all duration-200 hover:bg-red-500"
+              >
+                Home
+              </Link>
             </div>
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
               {stats.map((stat) => (
@@ -57,10 +86,18 @@ export default function DashboardPage() {
               The simplified AG demo keeps your workflow lean. Use the upload area to add your study material, then review the top topics AG predicts for your next exam.
             </p>
             <div className="mt-8 grid gap-4">
-              <Button className="w-full" onClick={() => window.location.assign('#topics')}>Review Predictions</Button>
-              <Link href="/dashboard#upload">
-                <Button variant="ghost" className="w-full">Go to Uploads section</Button>
-              </Link>
+              <a
+                href="#topics"
+                className="inline-flex w-full items-center justify-center rounded-2xl bg-accent px-4 py-2 text-sm font-semibold text-white shadow-glow transition-all duration-200 hover:bg-red-500"
+              >
+                Review Predictions
+              </a>
+              <a
+                href="#upload"
+                className="inline-flex w-full items-center justify-center rounded-2xl bg-white/5 px-4 py-2 text-sm font-semibold text-slate-100 transition-all duration-200 hover:bg-white/10"
+              >
+                Go to Uploads section
+              </a>
             </div>
           </Card>
         </section>
@@ -100,9 +137,12 @@ export default function DashboardPage() {
               <p>• Let AG generate flashcards from your strongest topics.</p>
               <p>• Use the chat to test knowledge with source-aware responses.</p>
             </div>
-            <Button className="mt-8 w-full py-3" onClick={() => window.location.assign('#topics')}>
+            <a
+              href="#topics"
+              className="mt-8 inline-flex w-full items-center justify-center rounded-2xl bg-accent px-4 py-3 text-sm font-semibold text-white shadow-glow transition-all duration-200 hover:bg-red-500"
+            >
               View Predictions
-            </Button>
+            </a>
           </Card>
         </section>
 
@@ -112,7 +152,12 @@ export default function DashboardPage() {
               <p className="text-sm uppercase tracking-[0.24em] text-red-400">Exam Predictor</p>
               <h2 className="mt-3 text-3xl font-semibold text-white">Likely Exam Topics</h2>
             </div>
-            <Button variant="ghost" onClick={() => window.location.assign('#upload')}>Back to Uploads</Button>
+            <a
+              href="#upload"
+              className="inline-flex items-center justify-center rounded-2xl bg-white/5 px-4 py-2 text-sm font-semibold text-slate-100 transition-all duration-200 hover:bg-white/10"
+            >
+              Back to Uploads
+            </a>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             {topics.map((topic) => (
